@@ -3,16 +3,40 @@ import csv
 import json
 import numpy as np
 import pandas as pd
+import plotly.express as px
+from matplotlib import pyplot as plt
 
-x = requests.get('https://ghoapi.azureedge.net/api/MH_6')
+def getDescriptive(dataset, col):
+    print(f'\n{col} Statistics')
+    #Central Tendency
+    mean = dataset[col].mean()
+    median = dataset[col].median()
+    mode = dataset[col].mode()
+    #Spread
+    range = round(dataset[col].max() - dataset[col].min(), 2)
+    variance = dataset[col].var()
+    std = dataset[col].std()
 
-json_object = x.content.decode('utf-8')
+    print("Central Tendency")
+    print("Mean:", round(mean, 2))
+    print("Median:", median)
+    print("Mode:", mode)
+    print("\nSpread")
+    print("Range:", range)
+    print("Variance:", round(variance, 2))
+    print("Standard Deviation:", round(std, 2))
+    # print("Interquartile Range:", iqr, "\n")
+
+
+# x = requests.get('https://ghoapi.azureedge.net/api/MH_6')
+
+# json_object = x.content.decode('utf-8')
 
 # Writing to sample.json
-with open("sample.json", "w") as outfile:
-    outfile.write(json_object)
+# with open("Project Goal 2/sample.json", "w") as outfile:
+#     outfile.write(json_object)
 
-json_file=open('sample.json','r')
+# json_file=open('Project Goal 2/sample.json','r')
 # csv_file=open('csv_format.csv','w')
 
 # json_data_to_python_dict=json.load(json_file)
@@ -28,15 +52,49 @@ json_file=open('sample.json','r')
 # my_data = np.genfromtxt('psych.csv', dtype=str, delimiter=',', usecols=np.arange(0,34))
 # psych_data = np.array(my_data)
 
-#Convert to pandas datasets
-suicide_df = pd.read_csv('suicide.csv', usecols = ['Location','Period', 'Dim1ValueCode', 'FactValueNumeric'])
-psych_df = pd.read_csv('psych.csv', usecols = ['Location', 'Period', 'Value'])
 
-print(suicide_df)
-print(psych_df)
-df3=pd.merge(suicide_df, psych_df, how='left', left_on=['Location', 'Period'], right_on=['Location', 'Period'])
+#Data Preparation
+
+#Convert to pandas datasets
+suicide_df = pd.read_csv('Project Goal 2/suicide.csv', usecols = ['Location','Period', 'Dim1ValueCode', 'FactValueNumeric'])
+psych_df = pd.read_csv('Project Goal 2/psych.csv', usecols = ['ParentLocation', 'Location', 'Period', 'Value'])
+
+#Merge records
+dataset = pd.merge(suicide_df, psych_df, how='left', left_on=['Location', 'Period'], right_on=['Location', 'Period'])
+#Rename columns
+dataset.rename(columns= {'ParentLocation':'Region', 'Location':'Country', 'FactValueNumeric':'SuicideRate', 'Value':'Psychiatrists'}, inplace = True)
 # Drop rows that have nulls
-df3 = df3.dropna()
-df3 = df3.query("Dim1ValueCode == 'BTSX'")
+dataset = dataset.dropna()
+#Only use rows for both sexes
+dataset.query("Dim1ValueCode == 'BTSX'", inplace=True)
+#Drop sex and id column since they no longer needed
+dataset.drop("Dim1ValueCode", axis=1, inplace=True)
 # Sort alphabetically
-print(df3.sort_values('Location', ascending=True))
+dataset = dataset.sort_values('Country', ascending=True)
+#Select subset of data by using 10-90 quartiles
+quartile = dataset.quantile(q=[0.10, 0.90], numeric_only=True)
+suicide_quartile = quartile.loc[:2, 'SuicideRate']
+psych_quartile = quartile.loc[:2, 'Psychiatrists']
+queryString = f'SuicideRate >= {suicide_quartile[0.10]} and SuicideRate <= {suicide_quartile[0.90]} and Psychiatrists >= {psych_quartile[0.10]} and Psychiatrists <= {psych_quartile[0.90]}'
+dataset.query(queryString, inplace=True)
+#Show correlation
+dataset.corr()
+
+
+#Descriptive Analytics
+
+getDescriptive(dataset, 'SuicideRate')
+getDescriptive(dataset, 'Psychiatrists')
+
+fig = px.scatter(dataset, x="SuicideRate", y="Psychiatrists", text="Country", color="Region", log_x=True, size_max=150)
+fig.update_traces(textposition='top center')
+fig.update_layout(
+    height=1000,
+    title_text='Suicide Rate and Psychatrists'
+)
+fig.show()
+
+#Print dataset
+print(dataset)
+#Write to csv
+dataset.to_csv('Project Goal 2\datset.csv', index=False)
