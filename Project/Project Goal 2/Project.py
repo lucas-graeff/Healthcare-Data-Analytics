@@ -85,9 +85,10 @@ print(dataset.corr())
 
 
 #Descriptive Analytics
-
-getDescriptive(dataset, 'SuicideRate')
-getDescriptive(dataset, 'Psychiatrists')
+print(dataset['SuicideRate'].describe())
+print(dataset['Psychiatrists'].describe())
+# getDescriptive(dataset, 'SuicideRate')
+# getDescriptive(dataset, 'Psychiatrists')
 
 fig = px.scatter(dataset, x="SuicideRate", y="Psychiatrists", text="Country", color="Region", trendline="ols", trendline_scope="overall",  size_max=150)
 fig.update_traces(textposition='top center')
@@ -130,4 +131,4 @@ print(clf.score(x_test, y_test))
 #Print dataset
 print(dataset)
 #Write to csv
-dataset.to_csv('Project Goal 2\datset.csv', index=False)
+dataset.to_csv('dataset.csv', index=False)
