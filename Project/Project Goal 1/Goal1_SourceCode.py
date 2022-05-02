@@ -1,3 +1,9 @@
+"""
+Fernando Jimenez Mendez
+N01444438
+CAP4784 Intro to Data Analytics
+"""
+
 import pandas as pd
 import numpy as np
 import statistics
