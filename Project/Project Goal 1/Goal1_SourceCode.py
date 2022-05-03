@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 #Create DataFrame from csv
 dataFrame = pd.read_csv('data.csv')
 
-#task 1: Clean up data table and creaete new table
+#task 1: Clean up data table and create new table
 newDataFrame = dataFrame[['Dim2ValueCode', 'FactValueNumeric']].copy()
 
 #task 2: assign values to their designated age groups
