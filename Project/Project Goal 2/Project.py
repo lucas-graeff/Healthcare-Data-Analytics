@@ -31,31 +31,6 @@ def getDescriptive(dataset, col):
     # print("Interquartile Range:", iqr, "\n")
 
 
-# x = requests.get('https://ghoapi.azureedge.net/api/MH_6')
-
-# json_object = x.content.decode('utf-8')
-
-# Writing to sample.json
-# with open("Project Goal 2/sample.json", "w") as outfile:
-#     outfile.write(json_object)
-
-# json_file=open('Project Goal 2/sample.json','r')
-# csv_file=open('csv_format.csv','w')
-
-# json_data_to_python_dict=json.load(json_file)
-# write=csv.writer(csv_file)
-# write.writerow(json_data_to_python_dict.keys())
-# write.writerow(json_data_to_python_dict.values()[3])
-# json_file.close()
-# csv_file.close()
-
-#Set 
-# my_data = np.genfromtxt('suicide.csv', dtype=str, delimiter=',', usecols=np.arange(0,34))
-# suicide_data = np.array(my_data)
-# my_data = np.genfromtxt('psych.csv', dtype=str, delimiter=',', usecols=np.arange(0,34))
-# psych_data = np.array(my_data)
-
-
 #Data Preparation
 
 #Convert to pandas datasets
@@ -81,7 +56,7 @@ psych_quartile = quartile.loc[:2, 'Psychiatrists']
 queryString = f'SuicideRate >= {suicide_quartile[0.10]} and SuicideRate <= {suicide_quartile[0.90]} and Psychiatrists >= {psych_quartile[0.10]} and Psychiatrists <= {psych_quartile[0.90]}'
 dataset.query(queryString, inplace=True)
 #Show correlation
-print(dataset.corr())
+print("Correlation: ", dataset.corr())
 
 
 #Descriptive Analytics
