@@ -6,6 +6,9 @@ Included in this folder:
 	- Queries that clean/aggregate the data and prepare it for analysis (cleaned_.sql)
 	- Aggregrated Queries for Descriptive Analysis
 	- PDF of current PowerBI Visualizations of Aggregated Data
+	- CSV's used for Linear Regression Models (suicide_by_state.csv & suicide_by_agegroup.csv)
+	- Python Source Code for Linear Regression Models
+	- Screenshots of the Linear Regression Model Outputs
 
 Notes:
 
