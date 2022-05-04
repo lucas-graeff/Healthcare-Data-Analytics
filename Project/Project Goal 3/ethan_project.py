@@ -20,6 +20,7 @@ data.dropna(inplace = True) # drop rows that are missing data
                             # (these are most likely demographics for which data had not been collected in a given year)
 
 # creating some data subsets; more can be made depending on the desired comparisons
+all_persons_data = data[(data["STUB_LABEL"] == "All persons") & (data["UNIT"] == "Deaths per 100,000 resident population, age-adjusted")]
 male_data = data[(data["STUB_LABEL"] == "Male") & (data["UNIT"] == "Deaths per 100,000 resident population, age-adjusted")]
 female_data = data[(data["STUB_LABEL"] == "Female") & (data["UNIT"] == "Deaths per 100,000 resident population, age-adjusted")]
 
@@ -75,21 +76,111 @@ mean_bl_nh_females = round(bl_nh_female_data.ESTIMATE.mean(), 2)
 mean_na_nh_females = round(na_nh_female_data.ESTIMATE.mean(), 2)
 mean_ap_nh_females = round(ap_nh_female_data.ESTIMATE.mean(), 2)
 
-# building dataframes with mean data from subsets and creating plots from them
+# building dataframes with mean data from subsets and creating bar plots from them
 
-# the 1st plot is built from male and female data including Hispanics and Latinos
+# the 1st bar plot is built from male and female data including Hispanics and Latinos
 mean_male_data = [mean_wh_males, mean_bl_males, mean_na_males, mean_ap_males, mean_hi_males]
 mean_female_data = [mean_wh_females, mean_bl_females, mean_na_females, mean_ap_females, mean_hi_females]
 index = ["White", "Black/African-American", "Native American/Alaskan", "Asian/Pacific Islander", "Hispanic/Latino, All Races"]
-mean_data = pd.DataFrame({"Suicides per 100,000 (M)": mean_male_data, "Suicides per 100,000 (F)": mean_female_data}, index = index)
-mean_plot = mean_data.plot.bar(rot = 0)
+mean_data = pd.DataFrame({"Male": mean_male_data, "Female": mean_female_data}, index = index)
+mean_plot = mean_data.plot.bar(rot = 0), \
+            plt.title("Mean age-adjusted US suicide by race and Hispanic origin"), \
+            plt.xlabel("Race"), \
+            plt.ylabel("Deaths per 100,000 people")
 
-# the 2nd plot is built from male and female data excluding Hispanics and Latinos
+# the 2nd bar plot is built from male and female data excluding Hispanics and Latinos
 mean_nh_male_data = [mean_wh_nh_males, mean_bl_nh_males, mean_na_nh_males, mean_ap_nh_males]
 mean_nh_female_data = [mean_wh_nh_females, mean_bl_nh_females, mean_na_nh_females, mean_ap_nh_females]
 nh_index = ["White", "Black/African-American", "Native American/Alaskan", "Asian/Pacific Islander"]
-mean_nh_data = pd.DataFrame({"Suicides per 100,000 (M)": mean_nh_male_data, "Suicides per 100,000 (F)": mean_nh_female_data}, index = nh_index)
-mean_nh_plot = mean_nh_data.plot.bar(rot = 0)
+mean_nh_data = pd.DataFrame({"Male": mean_nh_male_data, "Female": mean_nh_female_data}, index = nh_index)
+mean_nh_plot = mean_nh_data.plot.bar(rot = 0), \
+               plt.title("Mean age-adjusted US suicide by race"), \
+               plt.xlabel("Race"), \
+               plt.ylabel("Deaths per 100,000 people")
+
+# creating dataframes including certain year ranges and making line plots from them
+male_data_from_1999 = male_data.iloc[22:]     # start at index 22 to exclude years through 1998
+female_data_from_1999 = female_data.iloc[22:] # ditto
+
+wh_nh_male_data_from_1999 = wh_nh_male_data[14:] # start at index 14 because earliest data is from 1985
+bl_nh_male_data_from_1999 = bl_nh_male_data      # earliest data is from 1999
+na_nh_male_data_from_1999 = na_nh_male_data      # ditto
+ap_nh_male_data_from_1999 = ap_nh_male_data      # ditto
+hi_male_data_from_1999 = hi_male_data[14:]       # start at index 14 because earliest data is from 1985
+
+wh_nh_female_data_from_1999 = wh_nh_female_data[14:] # start at index 14 because earliest data is from 1985
+bl_nh_female_data_from_1999 = bl_nh_female_data      # earliest data is from 1999
+na_nh_female_data_from_1999 = na_nh_female_data      # ditto
+ap_nh_female_data_from_1999 = ap_nh_female_data      # ditto
+hi_female_data_from_1999 = hi_female_data[14:]       # start at index 14 because earliest data is from 1985
+
+# 1st line plot shows non-Hispanic male data alongside data for Hispanic males
+x = male_data_from_1999.YEAR
+y1 = male_data_from_1999.ESTIMATE
+y2 = wh_nh_male_data_from_1999.ESTIMATE
+y3 = bl_nh_male_data_from_1999.ESTIMATE
+y4 = na_nh_male_data_from_1999.ESTIMATE
+y5 = ap_nh_male_data_from_1999.ESTIMATE
+y6 = hi_male_data_from_1999.ESTIMATE
+male_line_plot = plt.figure(), \
+                 plt.plot(x, y1, label = "Total"), \
+                 plt.plot(x, y2, label = "White"), \
+                 plt.plot(x, y3, label = "Black/African-American"), \
+                 plt.plot(x, y4, label = "Native American/Alaskan"), \
+                 plt.plot(x, y5, label = "Asian/Pacific Islander"), \
+                 plt.plot(x, y6, label = "Hispanic/Latino (All races)"), \
+                 plt.legend(), \
+                 plt.title("Age-adjusted US male suicide rate by race, 1999-2018"), \
+                 plt.ylabel("Deaths per 100,000 people"), plt.xticks(np.arange(min(x), max(x) + 1, 1.0))
+
+# 2nd line plot shows non-Hispanic female data alongside data for Hispanic females
+x = male_data_from_1999.YEAR
+y1 = female_data_from_1999.ESTIMATE
+y2 = wh_nh_female_data_from_1999.ESTIMATE
+y3 = bl_nh_female_data_from_1999.ESTIMATE
+y4 = na_nh_female_data_from_1999.ESTIMATE
+y5 = ap_nh_female_data_from_1999.ESTIMATE
+y6 = hi_female_data_from_1999.ESTIMATE
+female_line_plot = plt.figure(), \
+                   plt.plot(x, y1, label="Total"), \
+                   plt.plot(x, y2, label="White"), \
+                   plt.plot(x, y3, label="Black/African-American"), \
+                   plt.plot(x, y4, label="Native American/Alaskan"), \
+                   plt.plot(x, y5, label="Asian/Pacific Islander"), \
+                   plt.plot(x, y6, label="Hispanic/Latino (All races)"), \
+                   plt.legend(), \
+                   plt.title("Age-adjusted US female suicide rate by race, 1999-2018"), \
+                   plt.ylabel("Deaths per 100,000 people"), plt.xticks(np.arange(min(x), max(x) + 1, 1.0))
+
+# calculate mean % change from 1999-2018
+print("Mean yearly % change from 1999 to 2018 for all males:", round((male_data_from_1999["ESTIMATE"].pct_change() * 100).mean(), 2))
+print("Mean yearly % change from 1999 to 2018 for non-Hispanic White males:", round((wh_nh_male_data_from_1999["ESTIMATE"].pct_change() * 100).mean(), 2))
+print("Mean yearly % change from 1999 to 2018 for non-Hispanic Black males:", round((bl_nh_male_data_from_1999["ESTIMATE"].pct_change() * 100).mean(), 2))
+print("Mean yearly % change from 1999 to 2018 for non-Hispanic Native American males:", round((na_nh_male_data_from_1999["ESTIMATE"].pct_change() * 100).mean(), 2))
+print("Mean yearly % change from 1999 to 2018 for non-Hispanic Asian males:", round((ap_nh_male_data_from_1999["ESTIMATE"].pct_change() * 100).mean(), 2))
+print("Mean yearly % change from 1999 to 2018 for Hispanic males:", round((hi_male_data_from_1999["ESTIMATE"].pct_change() * 100).mean(), 2))
+
+print("Mean yearly % change from 1999 to 2018 for all females:", round((female_data_from_1999["ESTIMATE"].pct_change() * 100).mean(), 2))
+print("Mean yearly % change from 1999 to 2018 for non-Hispanic White females:", round((wh_nh_female_data_from_1999["ESTIMATE"].pct_change() * 100).mean(), 2))
+print("Mean yearly % change from 1999 to 2018 for non-Hispanic Black females:", round((bl_nh_female_data_from_1999["ESTIMATE"].pct_change() * 100).mean(), 2))
+print("Mean yearly % change from 1999 to 2018 for non-Hispanic Native American females:", round((na_nh_female_data_from_1999["ESTIMATE"].pct_change() * 100).mean(), 2))
+print("Mean yearly % change from 1999 to 2018 for non-Hispanic Asian females:", round((ap_nh_female_data_from_1999["ESTIMATE"].pct_change() * 100).mean(), 2))
+print("Mean yearly % change from 1999 to 2018 for Hispanic females:", round((hi_female_data_from_1999["ESTIMATE"].pct_change() * 100).mean(), 2))
+
+# calculate total % change from 1999-2018
+print("Total % change from 1999 to 2018 for all males:", round((male_data_from_1999["ESTIMATE"].pct_change(periods = 19) * 100).mean(), 2))
+print("Total % change from 1999 to 2018 for non-Hispanic White males:", round((wh_nh_male_data_from_1999["ESTIMATE"].pct_change(periods = 19) * 100).mean(), 2))
+print("Total % change from 1999 to 2018 for non-Hispanic Black males:", round((bl_nh_male_data_from_1999["ESTIMATE"].pct_change(periods = 19) * 100).mean(), 2))
+print("Total % change from 1999 to 2018 for non-Hispanic Native American males:", round((na_nh_male_data_from_1999["ESTIMATE"].pct_change(periods = 19) * 100).mean(), 2))
+print("Total yearly % change from 1999 to 2018 for non-Hispanic Asian males:", round((ap_nh_male_data_from_1999["ESTIMATE"].pct_change(periods = 19) * 100).mean(), 2))
+print("Total yearly % change from 1999 to 2018 for Hispanic males:", round((hi_male_data_from_1999["ESTIMATE"].pct_change(periods = 19) * 100).mean(), 2))
+
+print("Total % change from 1999 to 2018 for all females:", round((female_data_from_1999["ESTIMATE"].pct_change(periods = 19) * 100).mean(), 2))
+print("Total % change from 1999 to 2018 for non-Hispanic White females:", round((wh_nh_female_data_from_1999["ESTIMATE"].pct_change(periods = 19) * 100).mean(), 2))
+print("Total % change from 1999 to 2018 for non-Hispanic Black females:", round((bl_nh_female_data_from_1999["ESTIMATE"].pct_change(periods = 19) * 100).mean(), 2))
+print("Total % change from 1999 to 2018 for non-Hispanic Native American females:", round((na_nh_female_data_from_1999["ESTIMATE"].pct_change(periods = 19) * 100).mean(), 2))
+print("Total yearly % change from 1999 to 2018 for non-Hispanic Asian females:", round((ap_nh_female_data_from_1999["ESTIMATE"].pct_change(periods = 19) * 100).mean(), 2))
+print("Total yearly % change from 1999 to 2018 for Hispanic females:", round((hi_female_data_from_1999["ESTIMATE"].pct_change(periods = 19) * 100).mean(), 2))
 
 # NOTE - to view results from the statements below, uncomment the desired lines
 #      - to comment/uncomment multiple lines at once, select them and use the shortcut Ctrl+/ (PyCharm)
@@ -206,5 +297,5 @@ mean_nh_plot = mean_nh_data.plot.bar(rot = 0)
 # print("Descriptive statistics for non-Hispanic/Latino Asian/Pacific Islander females:\n", ap_nh_female_data.ESTIMATE.describe().round(2))
 # print("Descriptive statistics for all Hispanic/Latino females:\n", hi_female_data.ESTIMATE.describe().round(2))
 
-# draw plot
+# draw plots
 plt.show()
